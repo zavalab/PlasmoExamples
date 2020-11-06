@@ -1,5 +1,5 @@
 using Plasmo
-using Plots;pyplot()
+using Plots
 using GLPK
 
 graph1 = OptiGraph()
