@@ -22,13 +22,11 @@ if !(isdefined(Main,:manager))
 end
 
 #Setup the worker environments
-@everywhere begin
-    using Pkg
-    println("Activating package environment on workers...")
-    Pkg.activate(@__DIR__)
-    using Plasmo
-    using PipsSolver
-end
+println("Activating package environment on workers...")
+@everywhere using Pkg
+@everywhere Pkg.activate(@__DIR__)
+@everywhere using Plasmo
+@everywhere using PipsSolver
 
 println("\nRunning Gas Network Case Study\n")
 include("case_studies/gasnetwork/partition_and_solve.jl")
