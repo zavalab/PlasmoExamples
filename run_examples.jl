@@ -1,8 +1,13 @@
 #This script runs all of the examples in the examples folder and plots the results in examples/figures
-
 println("Activating Julia Environment")
 using Pkg
 Pkg.activate(@__DIR__)
+
+#There are some cases when libGR.so doesn't get found.  This usually fixes the issue.
+using Plots
+ENV["GRDIR"] = ""
+Pkg.build("GR")
+
 
 #Model Building Examples
 #Example 1 - simple modelgraph
@@ -35,11 +40,11 @@ savefig(plt_matrix4,"examples/figures/example4_matrix1.pdf")
 savefig(plt_graph5,"examples/figures/example4_layout2.pdf")
 savefig(plt_matrix5,"examples/figures/example4_matrix2.pdf")
 
-# combined structure
+# aggregated structure
 savefig(plt_graph6,"examples/figures/example4_layout3.pdf")
 savefig(plt_matrix6,"examples/figures/example4_matrix3.pdf")
 
-#Example 5 - overlap structure
+#Example 5 - plot the overlap structure
 println("\nRunning Example 5\n")
 include("examples/example5.jl")
 savefig(plt_graph7,"examples/figures/example5_layout.pdf")
