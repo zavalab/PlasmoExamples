@@ -4,15 +4,6 @@ n_parts = 8
 max_imbalance = 0.1
 n_processes = 2
 ##################################################
-
-println("Activating Julia Environment")
-using Pkg
-Pkg.activate(@__DIR__)
-using LightGraphs
-using KaHyPar
-using Plasmo
-
-
 using Distributed
 using MPIClusterManagers
 
@@ -27,6 +18,13 @@ println("Activating package environment on workers...")
 @everywhere Pkg.activate(@__DIR__)
 @everywhere using Plasmo
 @everywhere using PipsSolver
+
+# println("Activating Julia Environment")
+# using Pkg
+# Pkg.activate(@__DIR__)
+using LightGraphs
+using KaHyPar
+using Plasmo
 
 println("\nRunning Gas Network Case Study\n")
 include("case_studies/gasnetwork/partition_and_solve.jl")
