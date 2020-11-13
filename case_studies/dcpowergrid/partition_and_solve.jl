@@ -29,3 +29,7 @@ expanded_subs = expand.(Ref(powergrid),subgraphs,Ref(overlap))
 schwarz_solve(powergrid,expanded_subs;sub_optimizer = optimizer_with_attributes(Ipopt.Optimizer,"tol" => 1e-12,"print_level" => 0,"linear_solver" => "ma27"),
 max_iterations = 100,tolerance = 1e-10,
 primal_links = primal_links,dual_links = dual_links)
+
+schwarz_solve(powergrid,expanded_subs;sub_optimizer = optimizer_with_attributes(Ipopt.Optimizer,"tol" => 1e-8,"print_level" => 0,"linear_solver" => "ma27"),
+max_iterations = 100,tolerance = 1e-10,
+primal_links = primal_links,dual_links = dual_links)

@@ -19,9 +19,6 @@ println("Activating package environment on workers...")
 @everywhere using Plasmo
 @everywhere using PipsSolver
 
-# println("Activating Julia Environment")
-# using Pkg
-# Pkg.activate(@__DIR__)
 using LightGraphs
 using KaHyPar
 using Plasmo

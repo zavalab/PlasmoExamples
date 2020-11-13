@@ -1,5 +1,6 @@
 include((@__DIR__)*"/gasnetwork.jl")
 
+#Obtain a hyergraph representation of the gas_network
 hypergraph,hyper_map = gethypergraph(gas_network)
 
 #Setup node and edge weights
@@ -12,7 +13,6 @@ node_vector = KaHyPar.partition(hypergraph,n_parts,configuration = :edge_cut,
 imbalance = max_imbalance, node_sizes = node_sizes, edge_weights = edge_weights)
 
 #Create a model partition
-# partition = Partition(hypergraph,node_vector,hyper_map)
 partition = Partition(gas_network,node_vector,hyper_map)
 
 #Setup subgraphs based on partition
@@ -28,16 +28,14 @@ end
 ##############################
 # Solve with PIPS-NLP
 ##############################
-
 #get the julia ids of the mpi workers
-#Need to sort for the allocation
 julia_workers = sort(collect(values(manager.mpi2j)))
 
-#Distribute the modelgraph among the workers
+#Distribute the optigraph among the workers
 #Here, we create the variable `pipsgraph` on each worker
 remote_references = PipsSolver.distribute(combined_graph,julia_workers,remote_name = :pipsgraph)
 
-# #Solve with PIPS-NLP on each mpi rank
+#Solve with PIPS-NLP on each mpi rank
 @mpi_do manager begin
     using MPI
     PipsSolver.pipsnlp_solve(pipsgraph)
