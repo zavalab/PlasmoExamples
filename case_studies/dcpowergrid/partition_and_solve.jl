@@ -1,13 +1,10 @@
+#NOTE: This file uses `n_parts`, `imbalance`, and `overlap` defined in the calling file
+
 using KaHyPar
 using SchwarzSolver
 
 include((@__DIR__)*"/powergrid.jl")
 
-####################################
-overlap = 10
-n_parts = 4
-max_imbalance = 0.1
-###################################
 
 hypergraph,hyper_map = gethypergraph(powergrid) #create hypergraph object based on graph
 n_vertices = length(vertices(hypergraph))
@@ -26,10 +23,7 @@ make_subgraphs!(powergrid,partition)
 subgraphs = getsubgraphs(powergrid)
 expanded_subs = expand.(Ref(powergrid),subgraphs,Ref(overlap))
 
+#Solve with overlapping schwarz algorithm
 schwarz_solve(powergrid,expanded_subs;sub_optimizer = optimizer_with_attributes(Ipopt.Optimizer,"tol" => 1e-12,"print_level" => 0,"linear_solver" => "ma27"),
-max_iterations = 100,tolerance = 1e-10,
-primal_links = primal_links,dual_links = dual_links)
-
-schwarz_solve(powergrid,expanded_subs;sub_optimizer = optimizer_with_attributes(Ipopt.Optimizer,"tol" => 1e-8,"print_level" => 0,"linear_solver" => "ma27"),
 max_iterations = 100,tolerance = 1e-10,
 primal_links = primal_links,dual_links = dual_links)
