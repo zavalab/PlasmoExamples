@@ -2,9 +2,7 @@ using Plasmo
 using JLD2
 
 #Model Data
-horizon = 24*3600   #the time horizon is in seconds
-nt= 24              #number of time points
-nx = 3              #number of space points per pipeline
+#NOTE: horizon, nt, and nx defined in calling file
 dt = horizon / (nt - 1) #time delta
 
 include((@__DIR__)*"/modelfunctions.jl")

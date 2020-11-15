@@ -1,14 +1,24 @@
 #NOTE: define n_parts, max_imbalance, and n_processes
 ##################################################
-n_parts = 7    #NOTE: Julia acts as one of the workers
+#partitioning data
+n_parts = 7         #NOTE: Julia acts as one of the workers when using MPIManager
+n_processes = 7
 max_imbalance = 0.1
-n_processes = 2
+
+#model data, can be used to adjust problem size
+horizon = 24*3600   #the time horizon is in seconds
+nt= 24              #number of time points
+nx = 3              #number of space points per pipeline
 ##################################################
 using Distributed
 using MPIClusterManagers
 
-manager=MPIManager(np=n_processes)
-addprocs(manager)  # start mpi workers and map them to julia workers
+#remove previous julia workers if we ran this script before
+if isdefined(Main,:manager)
+    rmprocs(workers(...))
+end
+manager=MPIManager(np=n_processes)      # create an MPIManager with n_processes
+addprocs(manager)                       # start mpi workers and map them to julia workers
 
 #Setup the worker environments
 println("Activating package environment on workers...")
