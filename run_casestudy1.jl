@@ -15,7 +15,7 @@ using MPIClusterManagers
 
 #remove previous julia workers if we ran this script before
 if isdefined(Main,:manager)
-    rmprocs(workers(...))
+    rmprocs(workers()...)
 end
 manager=MPIManager(np=n_processes)      # create an MPIManager with n_processes
 addprocs(manager)                       # start mpi workers and map them to julia workers
