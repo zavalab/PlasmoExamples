@@ -1,8 +1,8 @@
 # PlasmoExamples
 Example scripts that showcase the core functionality of [Plasmo.jl](https://github.com/zavalab/Plasmo.jl).  This repository shows how to:
 * Use optigraphs to create and solve hierarchical optimization models
-* Solve a natural gas optimal control problem with [PipsSolver](https://github.com/zavalab/PipsSolver.jl),
-* Solve a DC optimal power flow problem with [SchwarzSolver](https://github.com/zavalab/SchwarzSolver.jl)
+* Solve a natural gas optimal control problem with [PipsSolver.jl](https://github.com/zavalab/PipsSolver.jl),
+* Solve a DC optimal power flow problem with [SchwarzSolver.jl](https://github.com/zavalab/SchwarzSolver.jl)
 
 
 ## Requirements
@@ -11,7 +11,8 @@ Example scripts that showcase the core functionality of [Plasmo.jl](https://gith
 * PIPS-NLP with the ma57 linear solver. Use the [PIPS-NLP](https://github.com/Argonne-National-Laboratory/PIPS) installation instructions.
 * A working MPI installation for PIPS-NLP.  The scripts in this repository have been tested with [mpich](https://www.mpich.org/downloads/) version 3.3.2
 * Ipopt with the ma27 linear solver.  It is recommended to follow the [Ipopt](https://coin-or.github.io/Ipopt/INSTALL.html) installation procedure and install
-the HSL codes as detailed in the instructions.
+the HSL codes as detailed in the instructions. Also, make sure the Julia Ipopt interface correctly grabs the HSL libraries following the instructions from [Ipopt.jl](https://github.com/jump-dev/Ipopt.jl)
+for using a custom installation.
 
 
 ## Installation and Setup
@@ -31,7 +32,7 @@ julia> ]
 (PlasmoExamples) pkg> instantiate
 ```
 Note that you must type a `]` to enter the Julia package management tool from the Julia REPL.
-This snippet will download the necessary Julia packages at the correct versions.  Notably, the `Manifest.toml` tell Julia to download Plasmo.jl at v0.3.0 (PipsSolver.jl does not yet support the latest v0.3.2), and pins [MPI.jl](https://github.com/JuliaParallel/MPI.jl) to v0.12.0.  Newer versions of MPI.jl are not compatible with Julia 1.0.5 and mpich.
+This snippet will download the necessary Julia packages at the correct versions.  Notably, the `Manifest.toml` will tell Julia to download Plasmo.jl at v0.3.0 (PipsSolver.jl does not yet support the latest v0.3.2), and pins [MPI.jl](https://github.com/JuliaParallel/MPI.jl) to v0.12.0.  Newer versions of MPI.jl are not compatible with Julia 1.0.5 and mpich.
 
 ### Confirm MPI works
 If using a custom installation of MPI (such as mpich), it is helpful to verify that [MPIClusterManagers.jl](https://github.com/JuliaParallel/MPIClusterManagers.jl)
@@ -40,8 +41,8 @@ setup has been found to be necessary to get the `MPIManager` working correctly.
 
 1.) After installing mpich, make sure the library and executable can be found in the system path (i.e. by setting up `$PATH` and `$LD_LIBRARY_PATH` in your .bashrc file).  For instance, if
 mpich is installed in `/home/user/app/mpich_install`, then the following need to be added to your .bashrc file:
-* `export PATH="${PATH}:/home/mpc-linux-01/app/mpich-install/bin"`
-* `export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/mpc-linux-01/app/mpich-install/lib"`
+* `export PATH="${PATH}:/home/user/app/mpich-install/bin"`
+* `export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/home/user/app/mpich-install/lib"`
 
 2.) Make sure `MPIClusterManagers.jl` is installed in the base Julia environment. We have found that the workers need to find a functional `MPIClusterManagers.jl` package to initialize without using a package environment.
 
@@ -64,8 +65,8 @@ julia> addprocs(manager)
  2
  3
 ```
-The output should return the worker ids of the newly added workers.  It may also show some deprecation warnings since we're using an older version of `MPIClusterManagers.jl`.
-We have found that most issues that arise with the `MPIClusterManagers` have to do with workers finding the wrong mpi libraries, or forgetting to rebuild the Julia interface.
+The output should return the worker ids of the newly added workers.  It may also show some deprecation warnings since it is using an older version of `MPIClusterManagers.jl`.
+We have found that most issues that arise with the `MPIClusterManagers.jl` have to do with workers finding the wrong mpi libraries, or forgetting to rebuild the Julia interface.
 
 ## Running the Example Scripts
 The example scripts can be run from a shell with the following command in the `PlasmoExamples` directory:
