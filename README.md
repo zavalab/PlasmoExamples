@@ -34,7 +34,7 @@ julia> ]
 Note that you must type a `]` to enter the Julia package management tool from the Julia REPL.
 This snippet will download the necessary Julia packages at the correct versions.  Notably, the `Manifest.toml` will tell Julia to download Plasmo.jl at v0.3.0 (PipsSolver.jl does not yet support the latest v0.3.2), and pins [MPI.jl](https://github.com/JuliaParallel/MPI.jl) to v0.12.0.  Newer versions of MPI.jl are not compatible with Julia 1.0.5 and mpich.
 
-### Confirm MPI works
+### Confirm MPIManager works
 If using a custom installation of MPI (such as mpich), it is helpful to verify that [MPIClusterManagers.jl](https://github.com/JuliaParallel/MPIClusterManagers.jl)
 works as intended for case study 1. The case study uses the `MPIManager` object to setup worker MPI ranks interactively from a Julia session. The following
 setup has been found to be necessary to get the `MPIManager` working correctly.
@@ -141,7 +141,8 @@ julia> include("run_casestudy2.jl")
 This will run the case study and allow partitioning parameters to be modified (`n_parts`, `imbalance`, and `overlap`)
 by modifying the `run_casestudy2.jl` script. Simply run the `include` statement again after making any changes.
 Keep in mind, that Julia does not yet support changing the number of threads interactively, which requires setting the `JULIA_NUM_THREADS` environment variable and restarting the session.
-We have also found that too many partitions does not always lead to convergence (we have tested up to 4 partitions) and this is possibly due to how boundary constraints are treated.
+We have also found that too many partitions does not always lead to convergence (we have tested up to 4 partitions) and this is possibly due to how the problem is
+formulated (small partitions for a network can lead to feasibility issues).
 
 ## Other documentation
 Documentation describing Plasmo.jl and its underlying functions can be found at the [github pages](https://zavalab.github.io/Plasmo.jl/dev/) site.
