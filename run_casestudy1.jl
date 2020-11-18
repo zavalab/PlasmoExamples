@@ -5,9 +5,7 @@ n_parts = 7         #NOTE: Julia acts as one of the workers when using MPIManage
 n_processes = 7
 max_imbalance = 0.1
 
-#model data, can be used to adjust problem size
-horizon = 24*3600   #the time horizon is in seconds
-nt= 24              #number of time points
+#the number of spatial discretization points can be used to adjust problem size
 nx = 3              #number of space points per pipeline
 ##################################################
 using Distributed

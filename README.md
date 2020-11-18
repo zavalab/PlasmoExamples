@@ -102,17 +102,17 @@ The output should display various print statements that indicate the progress of
 The case study also writes out `gas_network.csv` (a node-edge list) and `gas_network_attributes.csv` which can be used to visualize the optigraph structure in a graph visualization tool (such as Gephi).
 
 ### Modifying parameters
-This case study can also be run interactively which allows parameters to be changed without restarting Julia (which requires recompiling).  Instead of running the script from a shell,
-simply start a Julia session and execute the case study script as follows:
+This case study can also be run interactively which allows parameters to be changed without restarting Julia (which requires recompiling at runtime).  Instead of running the script from a shell,
+simply start a Julia session and execute the case study using an `include`  statement as follows:
 
 ```
 $ julia
 julia> include("run_casestudy1.jl")
 ```
-It is now possible to modify partitioning parameters in the `run_casestudy1.jl` script such as `n_parts`, `n_processes`, and `max_imbalance`.
-It is also possible to scale the model size with `horizon`, `nt`, and `nx`. We recommend always
-keeping `n_parts` the same as `n_processes`.  There have been reported issues with `PipsSolver.jl` and non-uniform sub-problem allocations.
-
+This will run the case study just like before.  However, it is now possible to modify partitioning parameters (`n_parts`, `n_processes`, and `max_imbalance`) in the `run_casestudy1.jl` script  
+(by modifying the script with any text editor) without restarting Julia. It is also possible to scale the model size by modifying `nx` (the number of space discretization points for each pipeline).
+After modifying the script, just run the `include` statement again.
+We recommend always keeping `n_parts` the same as `n_processes`.  We have observed some issues with `PipsSolver.jl` and non-uniform sub-problem allocations.
 
 ## Running Case Study 2
 Case study 2 solves a DC optimal power flow problem with `SchwarzSolver.jl`. The solver can take advantage of multiple threads set with the
@@ -124,44 +124,46 @@ $ export JULIA_NUM_THREADS=4
 $ julia run_casestudy2.jl
 ```
 
-The output should be similar to case study 1 before hitting the solver.  You should see the following output printed to the console:
+The output should be similar to case study 1 up until it executes the solver.  You should see the following output printed to the console:
 * A message about activating the Julia package environment.
 * The output of KaHyPar which partitions the problem.
-* A notification about the subproblems being created (which includes subgraph expansion)
+* A notification about the sub-problems being created (which includes subgraph expansion)
 * The output of SchwarzSolver.jl.  The solver prints the current objective function, primal feasibility, and dual feasibility at each iteration. By default, the solver runs for 100 iterations.
 
 ### Modifying parameters
-Like the previous case study, it is possible to run interactively to avoid restarting Julia to test out different parameters.  Simply
-start up a Julia session and use the following include statement:
+Like the previous case study, it is possible to run interactively to avoid restarting Julia to test out different partitioning parameters.  Simply
+start up a Julia session and use the `include` statement to load the case study file:
 
 ```
 $ julia
 julia> include("run_casestudy2.jl")
 ```
-
-It is now possible to modify partitioning parameters in the `run_casestudy2.jl` script such as `n_parts`, `imbalance`, and `overlap`. Keep in mind, that Julia
-does not yet support changing the number of threads interactively, which requires setting the `JULIA_NUM_THREADS` environment variable and restarting the session.
-We have also found that too many partitions does not always lead to convergence (we have tested up to 4 partitions) and this is possibly due to using using simple overlap schemes.
+This will run the case study and allow partitioning parameters to be modified (`n_parts`, `imbalance`, and `overlap`)
+by modifying the `run_casestudy2.jl` script. Simply run the `include` statement again after making any changes.
+Keep in mind, that Julia does not yet support changing the number of threads interactively, which requires setting the `JULIA_NUM_THREADS` environment variable and restarting the session.
+We have also found that too many partitions does not always lead to convergence (we have tested up to 4 partitions) and this is possibly due to how boundary constraints are treated.
 
 ## Other documentation
 Documentation describing Plasmo.jl and its underlying functions can be found at the [github pages](https://zavalab.github.io/Plasmo.jl/dev/) site.
 The source code for v0.3.0 can be found at: [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0](https://github.com/zavalab/Plasmo.jl/tree/v0.3.0).
 
-### Overview of source code
-The Plasmo.jl source code is defined by a few modules located at [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src](https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src).
-Here is a brief overview of the underlying modules:
+### Overview of source code files
+The Plasmo.jl source code for version 0.3.0 is defined by modules located at [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src](https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src).
+Here is a brief overview of the modules:
 
-* hypergraphs/hypergraph.jl - defines the `HyperGraph` type used for working with hypergraphs. Extends a `LightGraphs.AbstractGraph`.
-* extras/kahypar.jl - defines a simple partition wrapper for KaHyPar if the package is found.  
-* extras/plots.jl - defines special plots for Plasmo.jl if the `Plots.jl` package is found.
+* hypergraphs/hypergraph.jl - defines the `HyperGraph` object used to create a hypergraph representation of an optigraph. Notably, it extends a `LightGraphs.AbstractGraph`, so common lightgraphs
+operations work with the `HyperGraph` object (such as `neighbors` and `incidence_matrix`).
+* extras/kahypar.jl - defines a simple conveniece wrapper for the KaHyPar package if it is loaded. Makes it easier to directly partition an optigraph using KaHyPar.
+* extras/plots.jl - defines special plots for Plasmo.jl if the `Plots.jl` package is loaded. Extends the `Plots.plot` and `Plots.spy` functions for the `OptiGraph` object.
 * combine.jl - contains functions to aggregate an optigraph into an optinode, or to aggregate optigraph subgraphs into optinodes.
-* copy.jl - functions to copy objective and constraint expressions.  Used extensively for the aggregate functions defined in combine.jl.
-* graph_functions.jl - defines functions to perform graph operations on an optigraph such as querying the neighborhood around a set of nodes or performing subgraph expansion.
-* graph_interface.jl - currently only contains a function to generate a hypergraph object from an optigraph object.
-* macros.jl - contains the Julia macros used to build optigraphs.
-* optiedge.jl - defines the `OptiEdge` and `LinkConstraint` types, as well as functions that work on these types.
-* optigraph.jl - defines the `OptiGraph` type, as well as functions that work on an optigraph.
-* optinode.jl - defines the `OptiNode` type, as well as functions that work on optinodes.
-* partition.jl - defines the `Partition` type which acts as an interface to partition an optigraph.  The `Partition` is used in the `make_subgraphs!` function to create subgraphs in an optigraph.
+* copy.jl - contains functions to copy objective and constraint expressions.  Used extensively for the aggregate functions defined in combine.jl.
+* graph_functions.jl - defines functions to perform graph operations on an optigraph such as querying the neighborhood around a set of nodes or performing subgraph expansion. Uses
+hypergraph.jl to perform said operations.
+* graph_interface.jl - currently only contains a function to generate a `HyperGraph` object from an `OptiGraph` object. Eventually other graph representations will be available.
+* macros.jl - contains the Julia macros used to model with optigraphs.  
+* optiedge.jl - defines the `OptiEdge` and `LinkConstraint` objects, as well as functions that work on these objects.
+* optigraph.jl - defines the `OptiGraph` objects, as well as functions that work on an optigraph. Notably, an `OptiGraph` extends a `JuMP.AbstractModel` so JuMP macros work with optigraphs.
+* optinode.jl - defines the `OptiNode` object, as well as functions that work on optinodes. The optinode also extends a `JuMP.AbstractModel`.
+* partition.jl - defines the `Partition` object which informs how to partition an optigraph.  The `Partition` object is used in the `make_subgraphs!` function to create subgraphs in an optigraph.
 * solve.jl - extends JuMP.jl functions to solve an optigraph using JuMP compatible solvers.
-* Plasmo.jl - imports and exports functions and defines abstract types.  Both the optigraph and optinode extend the `JuMP.AbstractModel` type.  This is what makes most of the JuMP macros work with Plasmo objects.
+* Plasmo.jl - imports and exports functions and defines abstract types.  
