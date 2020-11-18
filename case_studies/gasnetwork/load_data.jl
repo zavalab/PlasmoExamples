@@ -13,9 +13,6 @@ pipe_map = Dict()           #junction connected to each pipeline
 compressor_map = Dict()
 jmap = Dict()
 
-horizon = 24*3600   #the time horizon is in seconds
-nt= 24              #number of time points
-
 #create junction models.
 junctions = []
 for (i,j_data) in junction_data

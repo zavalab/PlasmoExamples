@@ -2,7 +2,9 @@ using Plasmo
 using JLD2
 
 #Model Data
-#NOTE: horizon, nt, and nx defined in calling file
+#NOTE: nx defined in calling file
+horizon = 24*3600   #the time horizon is in seconds
+nt = 24              #number of time points
 dt = horizon / (nt - 1) #time delta
 
 include((@__DIR__)*"/modelfunctions.jl")
