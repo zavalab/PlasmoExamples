@@ -111,7 +111,7 @@ julia> include("run_casestudy1.jl")
 ```
 This will run the case study just like before.  However, it is now possible to modify partitioning parameters (`n_parts`, `n_processes`, and `max_imbalance`) in the `run_casestudy1.jl` script  
 (by modifying the script with any text editor) without restarting Julia. It is also possible to scale the model size by modifying `nx` (the number of space discretization points for each pipeline).
-After modifying the script, just run the `include` statement again.
+After modifying the script, just run the `include("run_casestudy1.jl")` statement again.
 We recommend always keeping `n_parts` the same as `n_processes`.  We have observed some issues with `PipsSolver.jl` and non-uniform sub-problem allocations.
 
 ## Running Case Study 2
@@ -139,7 +139,7 @@ $ julia
 julia> include("run_casestudy2.jl")
 ```
 This will run the case study and allow partitioning parameters to be modified (`n_parts`, `imbalance`, and `overlap`)
-by modifying the `run_casestudy2.jl` script. Simply run the `include` statement again after making any changes.
+by modifying the `run_casestudy2.jl` script. Simply run the `include("run_casestudy2.jl")` statement again after making any changes.
 Keep in mind, that Julia does not yet support changing the number of threads interactively, which requires setting the `JULIA_NUM_THREADS` environment variable and restarting the session.
 We have also found that too many partitions does not always lead to convergence (we have tested up to 4 partitions) and this is possibly due to how the problem is
 formulated (small partitions for a network can lead to feasibility issues).
