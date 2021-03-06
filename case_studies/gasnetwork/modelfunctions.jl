@@ -36,7 +36,7 @@ function create_junction_model(data,nt)
 
         @expression(node, total_supplied, sum(fgen[s] for s = 1:n_supplies))
         @expression(node, total_delivered,sum(fdeliver[d] for d = 1:n_demands))
-        @expression(node, total_delivercost,sum(1000*fdeliver[d] for d = 1:n_demands))
+        @expression(node, total_delivercost,sum(-1000*fdeliver[d] for d = 1:n_demands))
 
         if n_demands > 0
             @objective(node,Min,total_delivercost)

@@ -6,6 +6,7 @@ using JLD2
 horizon = 24*3600   #the time horizon is in seconds
 nt = 24              #number of time points
 dt = horizon / (nt - 1) #time delta
+#nx = 3
 
 include((@__DIR__)*"/modelfunctions.jl")
 include((@__DIR__)*"/load_data.jl")
