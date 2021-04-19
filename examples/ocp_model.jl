@@ -1,4 +1,5 @@
 using Plasmo
+using PlasmoPlots
 
 T = 100          #number of time points
 d = sin.(1:T)    #disturbance vector

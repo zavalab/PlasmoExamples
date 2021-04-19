@@ -1,5 +1,6 @@
 using Plasmo
 using Plots
+using PlasmoPlots
 using GLPK
 
 graph1 = OptiGraph()
@@ -24,12 +25,13 @@ graph1 = OptiGraph()
 
 #Create a link constraint linking the 3 models
 @linkconstraint(graph1, n1[:x] + n2[:x] + n3[:x] == 3)
-optimize!(graph1,GLPK.Optimizer)
+set_optimizer(graph1,GLPK.Optimizer)
+optimize!(graph1)
 
 #Query Solution
-println("n1[:x] = ",value(n1,n1[:x]))
-println("n2[:x] = ",value(n2,n2[:x]))
-println("n3[:x] = ",value(n3,n3[:x]))
+println("n1[:x] = ",value(n1[:x]))
+println("n2[:x] = ",value(n2[:x]))
+println("n3[:x] = ",value(n3[:x]))
 println("objective value = ",objective_value(graph1))
 
 

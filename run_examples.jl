@@ -5,6 +5,7 @@ Pkg.activate(@__DIR__)
 
 #There are some cases when libGR.so doesn't get found.  This usually fixes the issue.
 using Plots
+using PlasmoPlots
 ENV["GRDIR"] = ""
 Pkg.build("GR")
 

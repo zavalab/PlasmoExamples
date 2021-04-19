@@ -1,5 +1,6 @@
 using Plasmo
 using Plots
+using PlasmoPlots
 using GLPK
 
 graph1 = OptiGraph()
@@ -82,7 +83,8 @@ add_subgraph!(graph0,graph3)
 @linkconstraint(graph0,n0[:x] + n7[:x] == 7)
 
 #Optimize with GLPK
-optimize!(graph0,GLPK.Optimizer)
+set_optimizer(graph0,GLPK.Optimizer)
+optimize!(graph0)
 
 for (i,node) in enumerate(all_nodes(graph0))
     j = i - 1
