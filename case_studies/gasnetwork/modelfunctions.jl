@@ -60,7 +60,7 @@ function create_pipeline_model(data,nt,nx)
         @variable(node, 1 <= px <= 100,start = 10)
         @variable(node, 0 <= fx <= 100, start = 10)
         @variable(node,slack >= 0, start = 1)
-        @NLnodeconstraint(node, slack*px - c3*fx*fx == 0)
+        @NLconstraint(node, slack*px - c3*fx*fx == 0)
     end
 
     #Setup boundary variables
@@ -95,7 +95,7 @@ function create_compressor_model(data,nt)
         @variable(node, flow >= 0, start = 10)
         @variable(node, 1 <= boost <= 30,start = 1)
         @constraint(node, pdischarge == psuction + boost)
-        @NLnodeconstraint(node, power == c4*flow*((pdischarge/psuction)^om-1) )
+        @NLconstraint(node, power == c4*flow*((pdischarge/psuction)^om-1) )
         @objective(node, Min, 0.1*power*(dt/3600.0))
     end
     @expression(graph,fin[t=1:nt],time_nodes[t][:flow])

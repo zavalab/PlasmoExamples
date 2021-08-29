@@ -1,96 +1,33 @@
-using Plasmo
-using Plots
-using PlasmoPlots
-using GLPK
+#Example script that demonstrates how to use hypergraph partitioning to partition an optigraph
+using Plasmo, PlasmoPlots, Plots
+#NOTE: GR backend fails to render some blocks. You may need to install the pyplot backend to render the correct pdf
+#pyplot()
 
-graph1 = OptiGraph()
+#Create the optigraph which models a simple optimal control problem
+T = 100          #number of time points
+d = sin.(1:T)    #disturbance vector
 
-@optinode(graph1,n1)
-@variable(n1, x >= 0)
-@variable(n1, y >= 2)
-@constraint(n1,x + y >= 3)
-@objective(n1, Min, y)
+graph = OptiGraph()
+@optinode(graph,state[1:T])
+@optinode(graph,control[1:T-1])
 
-@optinode(graph1,n2)
-@variable(n2,x >= 0)
-@variable(n2, y >= 2)
-@constraint(n2,x + y >= 3)
-@objective(n2, Min, y)
-
-@optinode(graph1,n3)
-@variable(n3,x >= 0)
-@variable(n3, y >= 2)
-@constraint(n3,x + y >= 3)
-@objective(n3, Min, y)
-
-@linkconstraint(graph1, n1[:x] + n2[:x] + n3[:x] == 3)
-
-graph2 = OptiGraph()
-
-@optinode(graph2,n4)
-@variable(n4, x >= 0)
-@variable(n4, y >= 2)
-@constraint(n4,x + y >= 5)
-@objective(n4, Min, y)
-
-@optinode(graph2,n5)
-@variable(n5, x >= 0)
-@variable(n5, y >= 2)
-@constraint(n5,x + y >= 5)
-@objective(n5, Min, y)
-
-@optinode(graph2,n6)
-@variable(n6, x >= 0)
-@variable(n6, y >= 2 )
-@constraint(n6,x + y >= 5)
-@objective(n6, Min, y)
-
-@linkconstraint(graph2, n4[:x] + n5[:x] + n6[:x] == 5)
-
-graph3 = OptiGraph()
-
-@optinode(graph3,n7)
-@variable(n7, x >= 0)
-@variable(n7, y >= 2)
-@constraint(n7,x + y >= 7)
-@objective(n7, Min, y)
-
-@optinode(graph3,n8)
-@variable(n8, x >= 0)
-@variable(n8, y >= 2)
-@constraint(n8,x + y >= 7)
-@objective(n8, Min, y)
-
-@optinode(graph3,n9)
-@variable(n9,x >= 0)
-@variable(n9, y >= 2)
-@constraint(n9,x + y >= 7)
-@objective(n9, Min, y)
-
-@linkconstraint(graph3, n7[:x] + n8[:x] + n9[:x] == 7)
-
-graph0 = OptiGraph()
-add_subgraph!(graph0,graph1)
-add_subgraph!(graph0,graph2)
-add_subgraph!(graph0,graph3)
-
-@optinode(graph0,n0)
-@variable(n0,x)
-@constraint(n0,x >= 0)
-@objective(n0,Min,x)
-@linkconstraint(graph0,n0[:x] + n3[:x] == 3)
-@linkconstraint(graph0,n0[:x] + n5[:x] == 5)
-@linkconstraint(graph0,n0[:x] + n7[:x] == 7)
-
-#Optimize with GLPK
-set_optimizer(graph0,GLPK.Optimizer)
-optimize!(graph0)
-
-for (i,node) in enumerate(all_nodes(graph0))
-    j = i - 1
-    node.label = "n$j"
+for node in state
+    @variable(node,x)
+    @constraint(node, x >= 0)
+    @objective(node,Min,x^2)
+end
+for node in control
+    @variable(node,u)
+    @constraint(node, u >= -1000)
+    @objective(node,Min,u^2)
 end
 
-plt_graph3 = Plots.plot(graph0,node_labels = true,markersize = 60,labelsize = 30,linewidth = 4,subgraph_colors = true,
-layout_options = Dict(:tol => 0.001,:C => 2, :K => 4, :iterations => 5))
-plt_matrix3 = Plots.spy(graph0,node_labels = true,subgraph_colors = true,markersize = 16)
+@linkconstraint(graph,[i = 1:T-1],state[i+1][:x] == state[i][:x] + control[i][:u] + d[i])
+n1 = state[1]
+@constraint(n1,n1[:x] == 0)
+
+#plot layout and matrix
+plt_graph4 = layout_plot(graph,layout_options = Dict(:tol => 0.1,:C => 2, :K => 4, :iterations => 500),linealpha = 0.2,markersize = 6);
+plt_matrix4 = matrix_plot(graph);
+Plots.savefig(plt_graph4,"figures/example3_layout.pdf")
+Plots.savefig(plt_matrix4,"figures/example3_matrix.pdf")

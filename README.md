@@ -1,12 +1,12 @@
 # PlasmoExamples
-Example scripts that showcase the core functionality of [Plasmo.jl](https://github.com/zavalab/Plasmo.jl).  This repository shows how to:
-* Use optigraphs to create and solve hierarchical optimization models
-* Solve a natural gas optimal control problem with [PipsSolver.jl](https://github.com/zavalab/PipsSolver.jl),
-* Solve a DC optimal power flow problem with [SchwarzSolver.jl](https://github.com/zavalab/SchwarzSolver.jl)
+Example scripts that showcase using [Plasmo.jl](https://github.com/zavalab/Plasmo.jl).  This repository shows how to:
+* Use `OptiGraphs` to model and solve optimization models
+* Solve a natural gas optimal control problem with [PipsNLP.jl](https://github.com/zavalab/PipsNLP.jl) using partitioning to obtain subproblems
+* Solve a DC optimal power flow problem with [SchwarzOpt.jl](https://github.com/zavalab/SchwarzOpt.jl) using overlapping schwarz decomposition
 
 
 ## Requirements
-* Julia 1.0.5
+* Julia 1.3 or later
 * The GR plotting backend to create plots for the example scripts.
 * PIPS-NLP with the ma57 linear solver. Use the [PIPS-NLP](https://github.com/Argonne-National-Laboratory/PIPS) installation instructions.
 * A working MPI installation for PIPS-NLP.  The scripts in this repository have been tested with [mpich](https://www.mpich.org/downloads/) version 3.3.2
@@ -20,7 +20,7 @@ The Julia packages needed to run the examples and case studies can be installed 
 To setup the necessary Julia environment, first clone the PlasmoExamples directory with:
 
 ```
-git clone https://github.com/jalving/PlasmoExamples.git
+git clone https://github.com/zavalab/PlasmoExamples.git
 ```
 
 Once cloned, navigate to the `PlasmoExamples` folder and begin a Julia REPL session. The necessary Julia dependencies can then be downloaded as follows:
@@ -78,11 +78,9 @@ $ julia run_examples.jl
 This will run the 5 example scripts in the examples folder and create corresponding plots in `PlasmoExamples/examples/figures`. The example scripts perform the following:
 
 * example1.jl creates a simple optigraph, solves it with GLPK, and plots the optigraph structure.
-* example2.jl creates a hierarchical optigraph with a shared optiedge (linkconstraint), solves it with GLPK, and plots the optigraph structure.
-* example3.jl creates a hierarchical optigraph with a shared optinode, solves it with GLPK, and plots the optigraph structure.
-* example4.jl creates an optigraph for an optimal control model, partitions it with KaHyPar, and aggregates the resulting subgraphs into new optinodes.  This example
-also creates plots for the optigraph structure corresponding to the original optigraph, the partitioned optigraph, and the aggregated optigraph.
-* example5.jl builds on example4.jl and creates overlapping subgraphs.  It also plots the overlapping graph structures.
+* example2.jl creates a hierarchical optigraph with a shared optiedge and optinode (i.e. it contains linkconstraints), solves it with GLPK, and plots the optigraph structure.
+* example3.jl creates an optigraph for an optimal control model and produces the plot.
+* example4.jl builds on example3.jl and partitions the control problem with KaHyPar, aggregates the resulting subgraphs into new optinodes, and also shows how to create overlapping subgraphs. It also plots the resulting graph structures.
 
 
 ## Running Case Study 1
@@ -112,10 +110,10 @@ julia> include("run_casestudy1.jl")
 This will run the case study just like before.  However, it is now possible to modify partitioning parameters (`n_parts`, `n_processes`, and `max_imbalance`) in the `run_casestudy1.jl` script  
 (by modifying the script with any text editor) without restarting Julia. It is also possible to scale the model size by modifying `nx` (the number of space discretization points for each pipeline).
 After modifying the script, just run the `include("run_casestudy1.jl")` statement again.
-We recommend always keeping `n_parts` the same as `n_processes`.  We have observed some issues with `PipsSolver.jl` and non-uniform sub-problem allocations.
+We recommend always keeping `n_parts` the same as `n_processes`.  We have observed some issues with `PipsNLP.jl` and non-uniform sub-problem allocations.
 
 ## Running Case Study 2
-Case study 2 solves a DC optimal power flow problem with `SchwarzSolver.jl`. The solver can take advantage of multiple threads set with the
+Case study 2 solves a DC optimal power flow problem with `SchwarzOpt.jl`. The solver can take advantage of multiple threads set with the
 `JULIA_NUM_THREADS` environment variable.  Since the case study partitions the problem into 4 partitions, it can benefit from up to 4 threads which solve
 the sub-problems in parallel.  The following commands can be used to set the number of threads and execute the case study:
 
@@ -146,25 +144,4 @@ formulated (small partitions for a network can lead to feasibility issues).
 
 ## Other documentation
 Documentation describing Plasmo.jl and its underlying functions can be found at the [github pages](https://zavalab.github.io/Plasmo.jl/dev/) site.
-The source code for v0.3.0 can be found at: [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0](https://github.com/zavalab/Plasmo.jl/tree/v0.3.0).
-
-### Overview of source code files
-The Plasmo.jl source code for version 0.3.0 is defined by modules located at [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src](https://github.com/zavalab/Plasmo.jl/tree/v0.3.0/src).
-Here is a brief overview of the modules:
-
-* hypergraphs/hypergraph.jl - defines the `HyperGraph` object used to create a hypergraph representation of an optigraph. Notably, it extends a `LightGraphs.AbstractGraph`, so common lightgraphs
-operations work with the `HyperGraph` object (such as `neighbors` and `incidence_matrix`).
-* extras/kahypar.jl - defines a simple conveniece wrapper for the KaHyPar package if it is loaded. Makes it easier to directly partition an optigraph using KaHyPar.
-* extras/plots.jl - defines special plots for Plasmo.jl if the `Plots.jl` package is loaded. Extends the `Plots.plot` and `Plots.spy` functions for the `OptiGraph` object.
-* combine.jl - contains functions to aggregate an optigraph into an optinode, or to aggregate optigraph subgraphs into optinodes.
-* copy.jl - contains functions to copy objective and constraint expressions.  Used extensively for the aggregate functions defined in combine.jl.
-* graph_functions.jl - defines functions to perform graph operations on an optigraph such as querying the neighborhood around a set of nodes or performing subgraph expansion. Uses
-hypergraph.jl to perform said operations.
-* graph_interface.jl - currently only contains a function to generate a `HyperGraph` object from an `OptiGraph` object. Eventually other graph representations will be available.
-* macros.jl - contains the Julia macros used to model with optigraphs.  
-* optiedge.jl - defines the `OptiEdge` and `LinkConstraint` objects, as well as functions that work on these objects.
-* optigraph.jl - defines the `OptiGraph` objects, as well as functions that work on an optigraph. Notably, an `OptiGraph` extends a `JuMP.AbstractModel` so JuMP macros work with optigraphs.
-* optinode.jl - defines the `OptiNode` object, as well as functions that work on optinodes. The optinode also extends a `JuMP.AbstractModel`.
-* partition.jl - defines the `Partition` object which informs how to partition an optigraph.  The `Partition` object is used in the `make_subgraphs!` function to create subgraphs in an optigraph.
-* solve.jl - extends JuMP.jl functions to solve an optigraph using JuMP compatible solvers.
-* Plasmo.jl - imports and exports functions and defines abstract types.  
+The source code for v0.3.0 can be found at: [https://github.com/zavalab/Plasmo.jl/tree/v0.3.0](https://github.com/zavalab/Plasmo.jl/tree/v0.4.0).
